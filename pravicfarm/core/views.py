@@ -116,7 +116,6 @@ def order_view(request):
                         quantity=quantity,
                         phone=request.POST.get('phone'),
                         address=request.POST.get('address'),
-            
                         payment_method=request.POST.get('payment_method', 'cash'),
                         is_paid=request.POST.get('payment_method') != 'cash'
 
