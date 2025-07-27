@@ -1,0 +1,51 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}{{ blog_post.title }} | Blog{% endblock %}
+
+{% block content %}
+<h2 class="mt-5 text-center fw-bold display-5">{{ blog_post.title }}</h2>
+<div class="container my-5">
+  <div class="row g-5">
+    <!-- Main Blog Content -->
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        {% if blog_post.featured_image %}
+          <img src="{{ blog_post.featured_image.url }}" class="card-img-top" alt="{{ blog_post.title }}">
+        {% endif %}
+        <div class="card-body">
+          <h2 class="card-title">{{ blog_post.title }}</h2>
+          <p class="text-muted">By {{ blog_post.author }} | {{ blog_post.published_date|date:"F d, Y" }}</p>
+          <div class="mt-3">
+            {{ blog_post.content|safe }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+      <!-- Recent Posts -->
+      <div class="mb-4">
+        <h4>Recent Posts</h4>
+        <ul class="list-group">
+          {% for post in blog_posts|slice:":5" %}
+            <li class="list-group-item">
+              <a href="{% url 'blog_post_detail' post.slug %}">{{ post.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Newsletter (optional) -->
+      <div class="card p-3 shadow-sm">
+        <h5>Subscribe to our Newsletter</h5>
+        <form method="post" action="{% url 'subscribe' %}">
+          {% csrf_token %}
+          <input type="email" name="email" class="form-control my-2" placeholder="Your email" required>
+          <button class="btn btn-orange w-100" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

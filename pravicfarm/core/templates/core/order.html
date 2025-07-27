@@ -1,0 +1,103 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block content %}
+<title>Order Now | Pravic Poultry Farm</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body { background-color: #f8f9fa; }
+  .order-container {
+    max-width: 700px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .logo {
+    max-height: 50px;
+  }
+</style>
+
+<div class="container order-container">
+  <div class="text-center mb-4">
+    <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="logo mb-3">
+    <h2 class="fw-bold">Place Your Order</h2>
+    <p class="text-muted">Get fresh, healthy poultry delivered to you.</p>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  {% if warning %}
+    <div class="alert alert-warning">{{ warning }}</div>
+  {% endif %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="product" class="form-label">Product</label>
+      <select id="product" name="product" class="form-select" required>
+        {% for product in products %}
+          <option value="{{ product.id }}" data-stock="{{ product.stock }}">
+            {{ product.name }} — {{ product.price }} USD ({{ product.stock }} in stock)
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" min="1" class="form-control" name="quantity" id="quantity" required>
+      <div class="form-text text-danger d-none" id="stock-warning">⚠ Not enough stock available!</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="customer_name" class="form-label">Your Name</label>
+      <input type="text" class="form-control" name="customer_name" id="customer_name" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="customer_email" class="form-label">Email</label>
+      <input type="email" class="form-control" name="customer_email" id="customer_email" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone</label>
+      <input type="text" class="form-control" name="phone" id="phone">
+    </div>
+
+    <div class="mb-3">
+      <label for="address" class="form-label">Delivery Address</label>
+      <textarea class="form-control" name="address" id="address" rows="3" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Confirm Order</button>
+  </form>
+</div>
+
+<script>
+  const quantityInput = document.getElementById('quantity');
+  const productSelect = document.getElementById('product');
+  const stockWarning = document.getElementById('stock-warning');
+
+  function checkStock() {
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+    const stock = parseInt(selectedOption.dataset.stock || 0);
+    const requestedQty = parseInt(quantityInput.value || 0);
+
+    if (requestedQty > stock) {
+      stockWarning.classList.remove('d-none');
+    } else {
+      stockWarning.classList.add('d-none');
+    }
+  }
+
+  quantityInput.addEventListener('input', checkStock);
+  productSelect.addEventListener('change', checkStock);
+</script>
+{% endblock %}

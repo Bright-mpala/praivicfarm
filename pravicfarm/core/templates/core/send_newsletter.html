@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <h2>Send Newsletter</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label>Subject:</label><br>
+    <input type="text" name="subject" required style="width: 100%; padding: 8px;"><br><br>
+
+    <label>Message (HTML allowed):</label><br>
+    <textarea name="message" rows="10" required style="width: 100%; padding: 8px;"></textarea><br><br>
+
+    <button type="submit" style="padding: 10px 20px;">Send</button>
+  </form>
+  {% if messages %}
+    {% for message in messages %}
+      <p style="color: green;">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

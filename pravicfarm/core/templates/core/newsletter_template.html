@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+      <h2 style="color: #ffa500;">📰 Pravic Poultry Newsletter</h2>
+      <p>Hi {{ username }},</p>
+      <div style="margin-top: 10px;">
+        {{ message|safe }}
+      </div>
+      <br>
+      <p style="font-size: 12px; color: #aaa;">&copy; {{ current_year }} Pravic Poultry. All rights reserved.</p>
+    </div>
+  </body>
+</html>

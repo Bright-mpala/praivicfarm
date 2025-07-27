@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}About{% endblock %}
+
+{% block content %}
+<style>
+  /* Custom styles for About page */
+  .about-container {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .about-container h1 {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 30px;
+  }
+  .about-container h2 {
+    margin-top: 30px;
+    color: #e67e22; /* warm orange accent */
+  }
+  .about-container p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #555;
+  }
+  .about-container ul {
+    list-style: none;
+    padding-left: 0;
+    color: #34495e;
+  }
+  .about-container ul li {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+  .about-container ul li i {
+    color: #e67e22;
+    margin-right: 10px;
+    font-size: 1.3rem;
+  }
+  .about-banner {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+</style>
+
+<div class="container mt-5">
+  <!-- Banner Image -->
+  <img 
+    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1350&q=80" 
+    alt="Poultry Farm Banner" 
+    class="about-banner"
+  >
+
+  <div class="about-container">
+    <h1>About Pravic Poultry Farm</h1>
+    <p>Welcome to Pravic Poultry Farm, your trusted source for high-quality poultry products in Zimbabwe. Our farm is dedicated to providing fresh, healthy, and sustainably raised chickens to our community.</p>
+    
+    <h2>Our Mission</h2>
+    <p>At Pravic Poultry Farm, we are committed to excellence in poultry farming. Our mission is to deliver the best poultry products while ensuring the welfare of our animals and the environment.</p>
+    
+    <h2>Our Products</h2>
+    <p>We offer a wide range of poultry products including:</p>
+    <ul>
+      <li><i class="bi bi-cup-fill"></i> Fresh Chicken</li>
+      <li><i class="bi bi-egg-fried"></i> Organic Eggs</li>
+      <li><i class="bi bi-box-seam"></i> Poultry Feed</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

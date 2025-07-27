@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .container { padding: 20px; }
+    h2 { color: #2E7D32; }
+    .details { margin-top: 20px; }
+    .details th, .details td { padding: 5px 10px; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Thank you for your order, {{ order.customer_name }}!</h2>
+    <p>Your order has been received and is being processed.</p>
+
+    <table class="details">
+      <tr>
+        <th>Order Reference:</th>
+        <td>{{ order.order_reference }}</td>
+      </tr>
+      <tr>
+        <th>Product:</th>
+        <td>{{ order.product.name }}</td>
+      </tr>
+      <tr>
+        <th>Quantity:</th>
+        <td>{{ order.quantity }}</td>
+      </tr>
+      <tr>
+        <th>Delivery Address:</th>
+        <td>{{ order.address }}</td>
+      </tr>
+      <tr>
+        <th>Phone:</th>
+        <td>{{ order.phone }}</td>
+      </tr>
+    </table>
+
+    <p>We will contact you soon with delivery details.</p>
+    <p>Thank you for choosing Pravic Poultry Farm!</p>
+  </div>
+</body>
+</html>

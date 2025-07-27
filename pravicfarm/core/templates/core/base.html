@@ -1,0 +1,267 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pravic Poultry Farm</title>
+  
+  <!-- SEO Meta -->
+  <meta name="description" content="Pravic Poultry Farm - Fresh, Healthy Poultry Straight From the Farm. Organic, sustainable poultry farming in Harare, Zimbabwe." />
+  <meta name="keywords" content="poultry farm, organic chicken, fresh chicken, Harare poultry, poultry training, eggs, live birds" />
+  <meta property="og:title" content="Pravic Poultry Farm" />
+  <meta property="og:description" content="Fresh, Healthy Poultry Straight From the Farm in Harare, Zimbabwe" />
+  <meta property="og:image" content="https://yourdomain.com/path-to-social-image.jpg" />
+  <meta property="og:type" content="website" />
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  
+  <!-- Your custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <!-- AOS for scroll animations -->
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+<!-- Typewriter effect -->
+<script src="https://unpkg.com/typewriter-effect@2.18.0/dist/core.js"></script>
+
+<!-- Optional: Lottie for animated icons -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <style>
+    /* Additional quick styles for language switcher and live chat */
+    .language-switcher select {
+      border: none;
+      background: transparent;
+      color: white;
+      font-weight: bold;
+      outline: none;
+      padding-right: 15px;
+    }
+    .language-switcher {
+      color: white;
+      font-weight: bold;
+    }
+    /* Live Chat button */
+    #liveChatBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-light border-bottom py-2">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap">
+      <div class="d-flex align-items-center">
+        <img src="https://images.unsplash.com/photo-1518994603110-1912b3272afd?q=80&w=1448&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Pravic Logo" style="height: 50px;" class="me-2" />
+        <h3 class="m-0">Pravic Poultry</h3>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a href="tel:+1234567890" class="text-dark" aria-label="Call us"><i class="bi bi-telephone"></i> +123 456 7890</a>
+        <a href="mailto:info@pravicfarm.com" class="text-dark" aria-label="Email us"><i class="bi bi-envelope"></i> info@pravicfarm.com</a>
+        <a href="#" aria-label="WhatsApp" class="text-success fs-4"><i class="bi bi-whatsapp"></i></a>
+
+        
+  </header>
+
+  <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top" aria-label="Primary navigation">
+  <div class="container">
+    <a class="navbar-brand d-lg-none" href="#">Menu</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <!-- Main links -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'index' %}">
+            <i class="bi bi-house-door-fill me-2"></i>Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'about' %}">
+            <i class="bi bi-info-circle-fill me-2"></i>About Us
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'products' %}">
+            <i class="bi bi-box-seam me-2"></i>Products
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'order' %}">
+            <i class="bi bi-cart-fill me-2"></i>Order Now
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'blog' %}">
+            <i class="bi bi-journal-text me-2"></i>Blog
+          </a>
+        </li>
+
+        <!-- Dropdown for less important links -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots me-2"></i>More
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+            <li><a class="dropdown-item" href="{%url 'gallery'%}"><i class="bi bi-images me-2"></i>Gallery</a></li>
+            <li><a class="dropdown-item" href="#faqs"><i class="bi bi-question-circle-fill me-2"></i>FAQs</a></li>
+            <li><a class="dropdown-item" href="{% url 'contact' %}"><i class="bi bi-telephone-fill me-2"></i>Contact</a></li>
+          </ul>
+        </li>
+
+      </ul>
+
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'my_orders' %}">
+              <i class="bi bi-cart-check-fill me-2"></i>My Orders
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle fs-4 me-1"></i> {{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <button type="button" class="btn btn-primary ms-lg-3" data-bs-toggle="modal" data-bs-target="#authModal">
+              Login / Register
+            </button>
+          </li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  {% block content %}
+
+    {% endblock content %}
+    <!-- Footer -->
+  <footer class="bg-dark text-light py-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <h5>Contact Us</h5>
+          <p>123 Poultry Rd, Harare, Zimbabwe</p>
+          <p><i class="bi bi-telephone"></i> +123 456 7890</p>
+          <p><i class="bi bi-envelope"></i> info@pravicfarm.com</p>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="#about" class="text-light">About</a></li>
+            <li><a href="#products" class="text-light">Products</a></li>
+            <li><a href="#gallery" class="text-light">Gallery</a></li>
+            <li><a href="#contact" class="text-light">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h5>Follow Us</h5>
+          <a href="#" class="text-light me-2" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-light me-2" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-light me-2" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+      <hr />
+      <div class="text-center mb-2">
+        <!-- Payment Icons -->
+        <i class="bi bi-credit-card-fill fs-3 me-3" title="Credit Card"></i>
+        <i class="bi bi-paypal fs-3 me-3" title="PayPal"></i>
+        <i class="bi bi-cash fs-3" title="Cash Payment"></i>
+      </div>
+      <div class="text-center">
+        <small>© 2025 Pravic Poultry Farm | All rights reserved</small>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Login/Register Modal -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title" id="authModalLabel">Login or Register</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Django Allauth Forms -->
+        {% if not user.is_authenticated %}
+          <form method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ login_form.as_p }}
+            <button type="submit" class="btn btn-success w-100">Login</button>
+          </form>
+
+          <hr>
+
+          <form method="POST" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {{ signup_form.as_p }}
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+          </form>
+
+          <hr>
+
+          <!-- Google Login -->
+          <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100 mb-2">
+            <i class="bi bi-google"></i> Continue with Google
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    var toastList = toastElList.map(function (toastEl) {
+      return new bootstrap.Toast(toastEl, { delay: 4000 }).show()
+    })
+  });
+</script>
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Optional: Live Chat JS -->
+  <script>
+    document.getElementById('liveChatBtn').addEventListener('click', () => {
+  alert('Live chat coming soon!');
+});
+  </script>

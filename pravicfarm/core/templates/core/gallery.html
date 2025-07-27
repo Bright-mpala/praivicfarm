@@ -1,0 +1,64 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Gallery{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4 text-center">Our Gallery</h1>
+  
+  <div class="row g-3">
+    {% for img in images %}
+      <div class="col-6 col-sm-4 col-md-3">
+        <p class="text-center-bold">{{ img.title }}</p>
+        <a href="{{ img.image.url }}" data-bs-toggle="modal" data-bs-target="#imageModal" data-img-url="{{ img.image.url }}" data-img-title="{{ img.title }}">
+          <img src="{{ img.image.url }}" alt="{{ img.title }}" class="img-fluid rounded shadow-sm gallery-thumb" loading="lazy">
+        </a>
+      </div>
+    {% empty %}
+      <p class="text-center">No images available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Modal for fullscreen image -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-white" id="imageModalLabel"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0 text-center">
+        <img src="" alt="" id="modalImage" class="img-fluid rounded">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const imageModal = document.getElementById('imageModal');
+  const modalImage = document.getElementById('modalImage');
+  const modalTitle = document.getElementById('imageModalLabel');
+
+  imageModal.addEventListener('show.bs.modal', event => {
+    const link = event.relatedTarget;
+    const imgUrl = link.getAttribute('data-img-url');
+    const imgTitle = link.getAttribute('data-img-title');
+
+    modalImage.src = imgUrl;
+    modalTitle.textContent = imgTitle;
+  });
+</script>
+
+<style>
+  .gallery-thumb {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gallery-thumb:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,314 @@
+{% extends "core/base.html" %}
+{% block title %}Pravic Poultry Farm{% endblock %}
+{% block content %}
+
+{% load static %}
+
+
+  <!-- Hero Section -->
+  <section id="hero" class="hero bg-dark text-white d-flex flex-column justify-content-center align-items-center" style="background: url('https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center / cover; min-height: 700px;">
+    <div class="container text-center">
+      <h1 class="display-3 fw-bold mb-3">Fresh, Healthy Poultry Straight From the Farm</h1>
+      <p class="lead mb-4">We deliver quality you can trust – from chicks to your kitchen.</p>
+      <a href="#shop" class="btn btn-warning btn-lg me-2">Shop Now</a>
+      <a href="#about" class="btn btn-outline-light btn-lg me-2">Learn More</a>
+    
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-5 bg-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h2>About Pravic Poultry</h2>
+          <p>We are committed to organic, sustainable poultry farming. With years of experience, certifications, and a dedicated team, we guarantee quality from hatch to delivery.</p>
+          <ul>
+            <li>Organic & Free-Range Certified</li>
+            <li>ISO 22000 Certified</li>
+            <li>Family-Owned, Locally Trusted</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <img src="https://images.unsplash.com/photo-1648141499246-97a0eb56c2fd?q=80&w=435&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="img-fluid rounded shadow" alt="Farm workers taking care of chickens" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="products" class="py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">Our Products</h2>
+      <div class="row g-4">
+        <!-- Product Cards -->
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm">
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+              <p class="text-success fw-bold">${{ product.price }}</p>
+              <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-success">View Product</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center">No products available at the moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+  <!-- Shop Placeholder Section -->
+  <section id="shop" class="py-5 bg-white">
+    <div class="container text-center">
+      <h2>Shop Coming Soon</h2>
+      <p>Our online shop is under development. Stay tuned for fresh poultry products delivered to your door!</p>
+    </div>
+  </section>
+
+  <!-- Why Choose Us Section -->
+  <section id="whychooseus" class="py-5 text-white bg-success">
+    <div class="container">
+      <h2 class="text-center mb-4">Why Choose Us?</h2>
+      <div class="row text-center">
+        <div class="col-md-3 mb-4">
+          <i class="bi bi-patch-check-fill fs-1"></i>
+          <p>Certified Quality</p>
+        </div>
+        <div class="col-md-3 mb-4">
+          <i class="bi bi-truck fs-1"></i>
+          <p>Fast Delivery</p>
+        </div>
+        <div class="col-md-3 mb-4">
+          <i class="bi bi-eco fs-1"></i>
+          <p>Organic Practices</p>
+        </div>
+        <div class="col-md-3 mb-4">
+          <i class="bi bi-currency-dollar fs-1"></i>
+          <p>Affordable Pricing</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">What Our Customers Say</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <blockquote class="blockquote p-3 border rounded bg-white shadow-sm">
+            <p>“Best chickens in town! I order weekly and I'm always satisfied.”</p>
+            <footer class="blockquote-footer">Jane from Harare</footer>
+          </blockquote>
+        </div>
+        <div class="col-md-4">
+          <blockquote class="blockquote p-3 border rounded bg-white shadow-sm">
+            <p>“Fast delivery and amazing service every time.”</p>
+            <footer class="blockquote-footer">John from Bulawayo</footer>
+          </blockquote>
+        </div>
+        <div class="col-md-4">
+          <blockquote class="blockquote p-3 border rounded bg-white shadow-sm">
+            <p>“Organic and fresh products that my family loves.”</p>
+            <footer class="blockquote-footer">Alice from Mutare</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Section -->
+  <!-- Blog Section -->
+<section id="blog" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-up">Latest Blog Posts</h2>
+    <div class="row g-4">
+      {% for post in blog_posts %}
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:"100" }}">
+        <div class="card h-100 shadow-sm">
+          <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" loading="lazy">
+          <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.content|truncatewords:25 }}</p>
+            <a href="{% url 'blog_post_detail' post.slug %}" class="btn btn-outline-success">Read More</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-center">No blog posts available.</p>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'blog' %}" class="btn btn-outline-primary">View All Posts</a>
+    </div>
+  </div>
+</section>
+
+ <section id="gallery" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-up">Gallery</h2>
+    <div class="row g-3">
+      {% for image in gallery %}
+      <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:"100" }}">
+        <a href="{{ image.image.url }}" data-bs-toggle="modal" data-bs-target="#galleryModal" data-img-url="{{ image.image.url }}" data-img-title="{{ image.title }}">
+          <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid rounded shadow-sm gallery-thumb" loading="lazy">
+        </a>
+      </div>
+      {% empty %}
+      <p class="text-center">No images available at the moment.</p>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'gallery' %}" class="btn btn-outline-primary">View Gallery</a>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Modal -->
+<div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="galleryModalLabel"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="" alt="" id="galleryModalImage" class="img-fluid rounded">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  AOS.init();
+
+  const galleryModal = document.getElementById('galleryModal');
+  galleryModal.addEventListener('show.bs.modal', event => {
+    const link = event.relatedTarget;
+    document.getElementById('galleryModalImage').src = link.dataset.imgUrl;
+    document.getElementById('galleryModalLabel').textContent = link.dataset.imgTitle;
+  });
+</script>
+
+
+  <!-- FAQs Section -->
+  <section id="faqs" class="py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+              What are your delivery areas?
+            </button>
+          </h2>
+          <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              We deliver within Harare and surrounding areas. Contact us for special requests.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+              Do you offer organic poultry products?
+            </button>
+          </h2>
+          <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Yes, we are certified organic and free-range farmers.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+              Can I book a farm tour?
+            </button>
+          </h2>
+          <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Absolutely! Contact us to schedule your visit.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">Contact Us</h2>
+      <div class="row justify-content-center">
+        <div class="col-md-6 mb-4">
+          <form aria-label="Contact form">
+            <div class="mb-3">
+              <label for="contactName" class="form-label">Name</label>
+              <input type="text" id="contactName" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="contactEmail" class="form-label">Email</label>
+              <input type="email" id="contactEmail" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="contactMessage" class="form-label">Message</label>
+              <textarea id="contactMessage" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Send Message</button>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <h5>Our Location</h5>
+          <p>23 MotherwellRd, Hwange, Zimbabwe</p>
+          <p><i class="bi bi-telephone-fill"></i> +263 78 080 8201</p>
+          <p><i class="bi bi-envelope-fill"></i> info@pravicfarm.com</p>
+          <!-- Google Maps Embed -->
+          <div class="ratio ratio-16x9 rounded shadow-sm">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.9322441724376!2d31.053040314245263!3d-17.82516558248096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931e83199a55a63%3A0x59d84fda54c1b6eb!2sHarare%20Poultry%20Farm!5e0!3m2!1sen!2szw!4v1689369423465!5m2!1sen!2szw"
+              style="border:0;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Pravic Poultry Farm Location">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="py-5 text-white text-center bg-warning">
+    <div class="container">
+      <h2>Get Fresh Chicken Delivered Today!</h2>
+      <a href="#shop" class="btn btn-dark mt-3">Order Now</a>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+
+{% include "core/subscribe.html" %}
+  <!-- Live Chat Button -->
+  <div id="liveChatBtn" aria-label="Live chat" role="button" tabindex="0" title="Chat with us">
+    <i class="bi bi-chat-dots-fill"></i>
+  </div>
+
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Optional: Live Chat JS -->
+  <script>
+    document.getElementById('liveChatBtn').addEventListener('click', () => {
+  alert('Live chat coming soon!');
+});
+  </script>
+  
+{% endblock %}
+  <!-- End of content block -->
