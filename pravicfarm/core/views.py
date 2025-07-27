@@ -116,7 +116,7 @@ def order_view(request):
                         quantity=quantity,
                         phone=request.POST.get('phone'),
                         address=request.POST.get('address'),
-                        total_price=product.price * quantity,
+            
                         payment_method=request.POST.get('payment_method', 'cash'),
                         is_paid=request.POST.get('payment_method') != 'cash'
 
@@ -144,7 +144,7 @@ def order_view(request):
                         f"Email: {order.customer_email}\n"
                         f"Phone: {order.phone}\n"
                         f"Address: {order.address}"
-                        f"Total Price: ${order.total_price}\n"
+                        
                     )
                     send_mail(admin_subject, admin_message, from_email, ['brightjustinmpala@gmail.com'])
 
