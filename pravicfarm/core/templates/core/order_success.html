@@ -39,5 +39,9 @@
     Notify Admin on WhatsApp
   </a>
   {% endif %}
+  {% if order %}
+  <a href="{% url 'order_receipt_pdf' order.id %}" class="btn btn-primary mt-3" target="_blank">Download PDF Receipt</a>
+{% endif %}
+
 </div>
 {% endblock %}

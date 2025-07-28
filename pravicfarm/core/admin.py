@@ -39,9 +39,10 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer_name', 'status_colored', 'order_date', 'delivered')
-    list_filter = ('status', 'delivered', 'order_date')
-    search_fields = ('customer_name', 'customer_email', 'phone')
+    list_display = ('id', 'product', 'customer_email', 'order_date', 'is_attended', 'expired')
+    list_editable = ('is_attended',)
+    list_filter = ('is_attended', 'expired', 'order_date')
+    search_fields = ('customer_email', 'product__name', 'customer_name')
     inlines = [OrderItemInline]
     actions = ['mark_as_confirmed', 'export_to_csv']
 
@@ -88,3 +89,8 @@ class OrderAdmin(admin.ModelAdmin):
 class NewsletterAdmin(admin.ModelAdmin):
     list_display = ('subject', 'created_at')
     search_fields = ('subject',)    
+
+
+@admin.action(description="Mark selected orders as Paid")
+def mark_as_paid(modeladmin, request, queryset):
+    queryset.update(is_paid=True)

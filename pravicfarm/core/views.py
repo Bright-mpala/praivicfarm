@@ -22,7 +22,11 @@ import json
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-# Homepage
+from core.utils import generate_ecocash_ussd_qr, generate_order_pdf, mark_expired_orders
+from django.db import transaction
+from django.http import FileResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 
 @require_http_methods(["GET"])
@@ -94,12 +98,25 @@ def order_view(request):
         product_id = request.POST.get('product')
         quantity = int(request.POST.get('quantity', 1))
         customer_email = request.POST.get('customer_email')
+        payment_method = request.POST.get('payment_method')
+        ecocash_number = request.POST.get('ecocash_number')
 
-        # Basic rate limiting: prevent more than 3 orders per email per hour
+        # Rate limit
         one_hour_ago = now() - timedelta(hours=1)
         recent_orders = Order.objects.filter(customer_email=customer_email, order_date__gte=one_hour_ago).count()
         if recent_orders >= 3:
             error = "You have made too many orders recently. Please try again later."
+            return render(request, 'core/order.html', {'products': products, 'error': error})
+
+        # Validate email early
+        try:
+            validate_email(customer_email)
+        except ValidationError:
+            error = "Invalid email address provided."
+            return render(request, 'core/order.html', {'products': products, 'error': error})
+
+        if payment_method == 'Ecocash' and not ecocash_number:
+            error = "Please provide your Ecocash number."
             return render(request, 'core/order.html', {'products': products, 'error': error})
 
         try:
@@ -108,59 +125,72 @@ def order_view(request):
 
                 if product.stock < quantity:
                     warning = f"Only {product.stock} units of {product.name} left in stock."
+                    return render(request, 'core/order.html', {'products': products, 'warning': warning})
+
+                order = Order.objects.create(
+                    product=product,
+                    customer_name=request.POST.get('customer_name'),
+                    customer_email=customer_email,
+                    quantity=quantity,
+                    phone=request.POST.get('phone'),
+                    address=request.POST.get('address'),
+                    payment_method=payment_method,
+                    is_paid=(payment_method == 'cash'),
+                    ecocash_number=ecocash_number if payment_method == 'Ecocash' else None
+                )
+
+                product.stock -= quantity
+                product.save()
+
+                # Send confirmation email
+                subject = 'Order Confirmation - Pravic Poultry Farm'
+                html_message = render_to_string('emails/order_confirmation.html', {'order': order})
+                plain_message = strip_tags(html_message)
+                send_mail(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [customer_email], html_message=html_message)
+
+                # Admin notification
+                admin_subject = f"New Order #{order.order_reference}"
+                admin_message = (
+                    f"New order placed:\n\n"
+                    f"Customer: {order.customer_name}\n"
+                    f"Product: {order.product.name}\n"
+                    f"Quantity: {order.quantity}\n"
+                    f"Email: {order.customer_email}\n"
+                    f"Phone: {order.phone}\n"
+                    f"Address: {order.address}\n"
+                    f"Payment Method: {order.payment_method}"
+                )
+                send_mail(admin_subject, admin_message, settings.DEFAULT_FROM_EMAIL, ['brightjustinmpala@gmail.com'])
+
+                # WhatsApp link for session if needed
+                whatsapp_number = "263780808201"
+                whatsapp_message = f"Hi, I’ve ordered {order.quantity} x {order.product.name}. Order Ref: {order.order_reference}"
+                whatsapp_url = f"https://wa.me/{whatsapp_number}?text={whatsapp_message.replace(' ', '%20')}"
+                request.session['whatsapp_url'] = whatsapp_url
+
+                # Handle response based on payment method
+                if payment_method == 'Ecocash':
+                    total = product.price * quantity
+                    qr_code_data_uri = generate_ecocash_ussd_qr(total)
+                    context = {
+                        'products': products,
+                        'order': order,
+                        'success': True,
+                        'ecocash_qr': qr_code_data_uri,
+                    }
+                    return render(request, 'core/order.html', context)
                 else:
-                    order = Order.objects.create(
-                        product=product,
-                        customer_name=request.POST.get('customer_name'),
-                        customer_email=customer_email,
-                        quantity=quantity,
-                        phone=request.POST.get('phone'),
-                        address=request.POST.get('address'),
-                        payment_method=request.POST.get('payment_method', 'cash'),
-                        is_paid=request.POST.get('payment_method') != 'cash'
-
-                    )
-
-                    product.stock -= quantity
-                    product.save()
-
-                    # Send confirmation email (HTML)
-                    subject = 'Order Confirmation - Pravic Poultry Farm'
-                    html_message = render_to_string('emails/order_confirmation.html', {'order': order})
-                    plain_message = strip_tags(html_message)
-                    from_email = settings.DEFAULT_FROM_EMAIL
-                    to_email = order.customer_email
-
-                    send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
-
-                    # Send admin notification email
-                    admin_subject = f"New Order #{order.order_reference}"
-                    admin_message = (
-                        f"New order placed:\n\n"
-                        f"Customer: {order.customer_name}\n"
-                        f"Product: {order.product.name}\n"
-                        f"Quantity: {order.quantity}\n"
-                        f"Email: {order.customer_email}\n"
-                        f"Phone: {order.phone}\n"
-                        f"Address: {order.address}"
-                        
-                    )
-                    send_mail(admin_subject, admin_message, from_email, ['brightjustinmpala@gmail.com'])
-
-                    #
-                    whatsapp_number = "263780808201"  # Replace with your WhatsApp number
-                    whatsapp_message = f"Hi, I have ordered {order.quantity} x {order.product.name}. Order Ref: {order.order_reference}"
-                    whatsapp_url = f"https://wa.me/{whatsapp_number}?text={whatsapp_message.replace(' ', '%20')}"
-
-                    request.session['whatsapp_url'] = whatsapp_url  # save for later if needed
-
                     return redirect('order_success', order_id=order.id)
 
         except Product.DoesNotExist:
             error = "Selected product does not exist."
 
-    return render(request, 'core/order.html', {'products': products, 'warning': warning, 'error': error})
-# Order Success
+    return render(request, 'core/order.html', {
+        'products': products,
+        'warning': warning,
+        'error': error
+    })
+
 @require_http_methods(["GET"])
 def order_success(request, order_id):
     whatsapp_url = request.session.get('whatsapp_url')
@@ -218,12 +248,20 @@ def send_newsletter(request):
 
 @login_required
 def my_orders(request):
-    # Get orders of the logged-in user (by email)
-    orders = Order.objects.filter(customer_email=request.user.email).order_by('-order_date')
-    if not orders:
-        messages.info(request, "You have no orders yet.")
-    # Render the orders pag
+    # Mark expired orders before fetching (optional)
+    mark_expired_orders(expiry_days=7)
+
+    # Show only active (non-expired) orders
+    orders = Order.objects.filter(
+        customer_email=request.user.email,
+        expired=False
+    ).order_by('-order_date')
+
+    if not orders.exists():
+        messages.info(request, "You have no active orders yet.")
+
     return render(request, 'core/my_orders.html', {'orders': orders})
+
 
 class CancelOrderView(LoginRequiredMixin, View):
     @method_decorator(require_http_methods(["POST"]))
@@ -259,3 +297,8 @@ send_order_update({'orders': 'Order list updated'})
 def gallery(request):
     images = GalleryImage.objects.all().order_by('-uploaded_at')
     return render(request, 'core/gallery.html', {'images': images})
+
+def order_receipt_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    pdf_buffer = generate_order_pdf(order)
+    return FileResponse(pdf_buffer, as_attachment=True, filename=f'order_{order.order_reference}.pdf')

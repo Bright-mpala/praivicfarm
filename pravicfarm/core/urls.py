@@ -18,5 +18,7 @@ urlpatterns = [
     path('my-orders/', views.my_orders, name='my_orders'),
     path('cancel-order/<int:order_id>/', CancelOrderView.as_view(), name='cancel_order'),
     path('admin/send-newsletter/', views.send_newsletter, name='send_newsletter'),
+    path('order/<int:order_id>/receipt/', views.order_receipt_pdf, name='order_receipt_pdf'),
+
     path('gallery/', views.gallery, name='gallery'),
 ]

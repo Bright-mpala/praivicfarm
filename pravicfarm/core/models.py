@@ -71,17 +71,27 @@ class Order(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField()
     order_date = models.DateTimeField(auto_now_add=True)
-    delivered = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     order_reference = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-
+    delivery_date = models.DateTimeField(null=True, blank=True)
+    delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    delivery_address = models.TextField(blank=True)
+    ecocash_number = models.CharField(max_length=20, blank=True, null=True)
+    is_paid = models.BooleanField(default=False)
     payment_method = models.CharField(
         max_length=20,
         choices=[('ecocash', 'EcoCash'), ('paynow', 'PayNow'), ('cash', 'Cash on Delivery')],
         default='cash'
     )
-    is_paid = models.BooleanField(default=False)
+    is_attended = models.BooleanField(default=False)  # mark order as attended
+    expired = models.BooleanField(default=False)  # mark expired orders
+
+    def has_expired(self, expiry_days=7):
+        """Return True if order is older than expiry_days and not attended."""
+        expiry_time = self.order_date + timedelta(days=expiry_days)
+        return timezone.now() > expiry_time and not self.is_attended
+
 
     def cancel_order(self):
             self.status = 'cancelled'
