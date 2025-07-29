@@ -3,6 +3,7 @@
 {% block content %}
 <title>Order Now | Pravic Poultry Farm</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   body { background-color: #f8f9fa; }
   .order-container {
@@ -33,6 +34,59 @@
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
+  .custom-radio-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .custom-radio-card {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    flex: 1 1 180px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background-color: #fff;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  .custom-radio-input:checked + .custom-radio-card {
+    border-color: #198754;
+    background-color: #e9fbee;
+    font-weight: 600;
+  }
+
+  .custom-radio-card:hover {
+    border-color: #198754;
+    background-color: #f6fff9;
+  }
+
+  .custom-radio-input:disabled + .custom-radio-card {
+    border-style: dashed;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .custom-radio-input {
+    display: none;
+  }
+
+  .custom-radio-card i {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .custom-radio-card {
+      flex: 1 1 100%;
+    }
+  }
+
+
 </style>
 
 {% if user.is_authenticated %}
@@ -75,13 +129,13 @@
     </div>
 
     <div class="mb-3">
-      <label for="customer_name" class="form-label">Your Name</label>
-      <input type="text" class="form-control" name="customer_name" id="customer_name" required>
+      <label for="customer_name" class="form-label" >Your Name</label>
+      <input type="text" class="form-control" name="customer_name" id="customer_name" placeholder="{{user.username}}" required>
     </div>
 
     <div class="mb-3">
       <label for="customer_email" class="form-label">Email</label>
-      <input type="email" class="form-control" name="customer_email" id="customer_email" required>
+      <input type="email" class="form-control" name="customer_email" id="customer_email" placeholder="{{user.email}}" required>
     </div>
 
     <div class="mb-3">
@@ -95,29 +149,35 @@
     </div>
 
     <!-- Payment Options -->
-    <div class="mb-3">
-      <label class="form-label">Payment Method</label>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="payment_method" id="ecocash" value="Ecocash" required>
-        <label class="form-check-label" for="ecocash">
-          Ecocash
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="payment_method" id="paynow" value="PayNow" disabled>
-        <label class="form-check-label text-muted" for="paynow">
-          PayNow (Coming Soon)
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash" checked>
-        <label class="form-check-label" for="cash">
-          Cash in Hand
-        </label>
-      </div>
-    </div>
+     <div class="mb-3">
+  <label class="form-label mb-2">Payment Method</label>
+  <div class="custom-radio-group">
 
-    <!-- Ecocash Number Field -->
+    <!-- Ecocash -->
+    <input type="radio" name="payment_method" id="ecocash" value="Ecocash" class="custom-radio-input" required>
+    <label for="ecocash" class="custom-radio-card text-success">
+      <i class="fas fa-mobile-alt"></i>
+      Ecocash
+    </label>
+
+    <!-- PayNow (disabled) -->
+    <input type="radio" name="payment_method" id="paynow" value="PayNow" class="custom-radio-input" disabled>
+    <label for="paynow" class="custom-radio-card text-muted">
+      <i class="fas fa-credit-card"></i>
+      PayNow<br><small>(Coming Soon)</small>
+    </label>
+
+    <!-- Cash in Hand -->
+    <input type="radio" name="payment_method" id="cash" value="cash" class="custom-radio-input" checked>
+    <label for="cash" class="custom-radio-card text-dark">
+      <i class="fas fa-hand-holding-usd"></i>
+      Cash in Hand
+    </label>
+
+  </div>
+</div>
+
+    <!-- Ecocash Number Fi<ineld -->
     <div class="mb-3 d-none" id="ecocash-details">
       <label for="ecocash_number" class="form-label">Ecocash Number</label>
       <input type="text" class="form-control" name="ecocash_number" id="ecocash_number" placeholder="07XX-XXXXXX">
