@@ -14,7 +14,13 @@
     box-shadow: 0 0 12px rgba(0,0,0,0.1);
     text-align: center;
   }
+  .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: gold;
+  }
 </style>
+
 <div class="container confirmation-container">
   <h2 class="text-success mb-4">✅ Order Placed Successfully!</h2>
 
@@ -35,13 +41,109 @@
   <a href="{% url 'products' %}" class="btn btn-outline-success mt-3">Back to Home</a>
   <br><br>
   {% if whatsapp_url %}
-  <a href="{{ whatsapp_url }}" class="btn btn-success" target="_blank">
-    Notify Admin on WhatsApp
-  </a>
+  <a href="{{ whatsapp_url }}" class="btn btn-success" target="_blank">Notify Admin on WhatsApp</a>
   {% endif %}
   {% if order %}
   <a href="{% url 'order_receipt_pdf' order.id %}" class="btn btn-primary mt-3" target="_blank">Download PDF Receipt</a>
-{% endif %}
-
+  {% endif %}
 </div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="review-form" method="POST">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reviewModalLabel">Leave a Review</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="order_id" id="review-order-id" value="{{ order.id }}">
+
+          <div class="mb-3">
+            <label for="review-text" class="form-label">Your Review</label>
+            <textarea class="form-control" name="text" id="review-text" rows="3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Rating</label>
+            <div id="star-rating">
+              {% for i in "12345" %}
+              <span class="star" data-value="{{ forloop.counter }}">☆</span>
+              {% endfor %}
+              <input type="hidden" name="rating" id="rating-value" required>
+            </div>
+          </div>
+
+          <div class="alert alert-success d-none" id="review-success">Thanks for your review!</div>
+          <div class="alert alert-danger d-none" id="review-error">Something went wrong. Try again.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+  const reviewForm = document.getElementById('review-form');
+  const stars = document.querySelectorAll('.star');
+  const ratingValue = document.getElementById('rating-value');
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const successAlert = document.getElementById('review-success');
+  const errorAlert = document.getElementById('review-error');
+  const orderId = document.getElementById('review-order-id').value;
+
+  // Show review modal automatically
+  reviewModal.show();
+
+  // Handle star rating UI
+  stars.forEach(star => {
+    star.addEventListener('click', function () {
+      const value = this.getAttribute('data-value');
+      ratingValue.value = value;
+      stars.forEach(s => {
+        s.textContent = s.getAttribute('data-value') <= value ? '🌟' : '☆';
+      });
+    });
+  });
+
+  // Submit review form via AJAX
+  reviewForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    errorAlert.classList.add('d-none');
+    successAlert.classList.add('d-none');
+
+    fetch(`/order/${orderId}/review/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Accept': 'application/json'
+      },
+      body: new FormData(reviewForm)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        successAlert.classList.remove('d-none');
+        setTimeout(() => reviewModal.hide(), 1500);
+      } else {
+        errorAlert.classList.remove('d-none');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      errorAlert.classList.remove('d-none');
+    });
+  });
+});
+</script>
 {% endblock %}

@@ -1,0 +1,235 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Login - Pravic Poultry Farm{% endblock %}
+
+{% block head %}
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  >
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+  <style>
+    .form-control:focus {
+      border-color: #198754;
+      box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    a.text-decoration-none:hover {
+      text-decoration: underline;
+    }
+    .invalid-feedback {
+      display: block;
+    }
+    /* Password toggle icon positioning */
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      user-select: none;
+      z-index: 2;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div
+    class="card shadow-lg p-4 animate__animated animate__fadeInDown position-relative"
+    style="width: 100%; max-width: 420px;"
+  >
+    <div class="text-center mb-4">
+      <h3 class="text-success">Login to Pravic Poultry Farm</h3>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+    {% if messages %}
+      <div class="alert alert-info" role="alert">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form id="loginForm" method="POST" action="{% url 'account_login' %}" novalidate>
+      {% csrf_token %}
+
+      <!-- Username or Email -->
+      <div class="form-floating mb-3">
+        <input
+          type="text"
+          class="form-control {% if form.login.errors %}is-invalid{% endif %}"
+          id="login"
+          name="login"
+          placeholder="Email or Username"
+          value="{{ form.login.value|default:'' }}"
+          required
+          autocomplete="username"
+          aria-describedby="loginHelp loginError"
+        >
+        <label for="login">{{ form.login.label }}</label>
+        <div id="loginHelp" class="form-text">Enter your email or username.</div>
+        <div id="loginError" class="invalid-feedback" style="display:none;"></div>
+        {% if form.login.errors %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const el = document.getElementById('loginError');
+              el.style.display = 'block';
+              el.textContent = '{{ form.login.errors.0 }}';
+            });
+          </script>
+        {% endif %}
+      </div>
+
+      <!-- Password -->
+      <div class="form-floating mb-3 position-relative">
+        <input
+          type="password"
+          class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+          id="password"
+          name="password"
+          placeholder="Password"
+          required
+          autocomplete="current-password"
+          aria-describedby="passwordError"
+        >
+        <label for="password">{{ form.password.label }}</label>
+        <span id="togglePassword" class="password-toggle" title="Show/Hide Password">
+          <i class="bi bi-eye"></i>
+        </span>
+        <div id="passwordError" class="invalid-feedback" style="display:none;"></div>
+        {% if form.password.errors %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const el = document.getElementById('passwordError');
+              el.style.display = 'block';
+              el.textContent = '{{ form.password.errors.0 }}';
+            });
+          </script>
+        {% endif %}
+      </div>
+
+      <!-- Remember Me -->
+      <div class="form-check mb-4">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="remember"
+          name="remember"
+          {% if form.remember.value %}checked{% endif %}
+        >
+        <label class="form-check-label" for="remember">{{ form.remember.label }}</label>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-grid mb-3">
+        <button id="submitBtn" type="submit" class="btn btn-success btn-lg shadow-sm">
+          <span id="btnText">Login</span>
+          <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true" style="display:none;"></span>
+        </button>
+      </div>
+    </form>
+
+    <div class="text-center small mb-3">
+      <a href="{% url 'account_reset_password' %}" class="text-decoration-none me-3">
+        Forgot your password?
+      </a>
+      <a href="{% url 'account_signup' %}" class="text-decoration-none">
+        Don’t have an account? Sign up
+      </a>
+    </div>
+
+    <hr>
+
+    <div class="d-grid mt-3">
+      <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger btn-lg d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-google"></i> Login with Google
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const loginInput = document.getElementById('login');
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('loginError');
+    const passwordError = document.getElementById('passwordError');
+    const togglePassword = document.getElementById('togglePassword');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // Password toggle
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePassword.innerHTML = type === 'password'
+        ? '<i class="bi bi-eye"></i>'
+        : '<i class="bi bi-eye-slash"></i>';
+    });
+
+    // Validate email format
+    function isValidEmail(email) {
+      // Simple regex for email validation
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function validateField(input, errorEl, fieldName) {
+      const val = input.value.trim();
+      if (!val) {
+        input.classList.add('is-invalid');
+        errorEl.style.display = 'block';
+        errorEl.textContent = `${fieldName} is required.`;
+        return false;
+      }
+      // Additional email validation if login input contains '@'
+      if (input.id === 'login' && val.includes('@') && !isValidEmail(val)) {
+        input.classList.add('is-invalid');
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Please enter a valid email address.';
+        return false;
+      }
+      input.classList.remove('is-invalid');
+      errorEl.style.display = 'none';
+      errorEl.textContent = '';
+      return true;
+    }
+
+    loginInput.addEventListener('input', () => {
+      validateField(loginInput, loginError, 'Email or Username');
+    });
+
+    passwordInput.addEventListener('input', () => {
+      validateField(passwordInput, passwordError, 'Password');
+    });
+
+    form.addEventListener('submit', function(event) {
+      let validLogin = validateField(loginInput, loginError, 'Email or Username');
+      let validPassword = validateField(passwordInput, passwordError, 'Password');
+
+      if (!validLogin || !validPassword) {
+        event.preventDefault();
+        return;
+      }
+
+      // Show spinner & disable button
+      submitBtn.disabled = true;
+      btnSpinner.style.display = 'inline-block';
+      btnText.textContent = 'Logging in...';
+    });
+  });
+</script>
+{% endblock %}

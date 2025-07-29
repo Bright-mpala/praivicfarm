@@ -1,0 +1,8 @@
+<h3>New Product Inquiry</h3>
+<p><strong>Product:</strong> {{ product.title }}</p>
+<p><strong>Name:</strong> {{ name }}</p>
+<p><strong>Email:</strong> {{ email }}</p>
+<p><strong>Message:</strong><br>{{ message }}</p>
+{% if inquiry.photo %}
+<p><strong>Photo attached.</strong></p>
+{% endif %}

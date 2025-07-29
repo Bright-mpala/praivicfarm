@@ -50,7 +50,7 @@
               <h5 class="card-title">{{ product.name }}</h5>
               <p class="card-text">{{ product.description|truncatewords:15 }}</p>
               <p class="text-success fw-bold">${{ product.price }}</p>
-              <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-success">View Product</a>
+              <a href="{% url 'products' %}" class="btn btn-outline-success">View Products</a>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@
           <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" loading="lazy">
           <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
-            <p class="card-text">{{ post.content|truncatewords:25 }}</p>
+            <p class="card-text">{{ post.content|safe|truncatewords:25 }}</p>
             <a href="{% url 'blog_post_detail' post.slug %}" class="btn btn-outline-success">Read More</a>
           </div>
         </div>
@@ -247,43 +247,42 @@
       <h2 class="text-center mb-4">Contact Us</h2>
       <div class="row justify-content-center">
         <div class="col-md-6 mb-4">
-          <form aria-label="Contact form">
+          <form method="post" action="{% url 'contact' %}">
+            {% csrf_token %}
             <div class="mb-3">
-              <label for="contactName" class="form-label">Name</label>
-              <input type="text" id="contactName" class="form-control" required />
+              <label for="name" class="form-label">Your Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="mb-3">
-              <label for="contactEmail" class="form-label">Email</label>
-              <input type="email" id="contactEmail" class="form-control" required />
+              <label for="email" class="form-label">Your Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="mb-3">
-              <label for="contactMessage" class="form-label">Message</label>
-              <textarea id="contactMessage" class="form-control" rows="4" required></textarea>
+              <label for="message" class="form-label">Your Message</label>
+              <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
             </div>
-            <button type="submit" class="btn btn-success w-100">Send Message</button>
+            <button type="submit" class="btn btn-primary">Send Message</button>
           </form>
         </div>
         <div class="col-md-6">
           <h5>Our Location</h5>
-          <p>23 MotherwellRd, Hwange, Zimbabwe</p>
+          <p>A3 Mukwa drive Hwange, Zimbabwe</p>
           <p><i class="bi bi-telephone-fill"></i> +263 78 080 8201</p>
           <p><i class="bi bi-envelope-fill"></i> info@pravicfarm.com</p>
           <!-- Google Maps Embed -->
           <div class="ratio ratio-16x9 rounded shadow-sm">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.9322441724376!2d31.053040314245263!3d-17.82516558248096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931e83199a55a63%3A0x59d84fda54c1b6eb!2sHarare%20Poultry%20Farm!5e0!3m2!1sen!2szw!4v1689369423465!5m2!1sen!2szw"
-              style="border:0;"
-              allowfullscreen=""
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              title="Pravic Poultry Farm Location">
-            </iframe>
-          </div>
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.589823918842!2d26.50705821528212!3d-18.333858884353843!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x194f01fa6f123456%3A0xabcdef1234567890!2sMukwa%20Drive%2C%20Hwange%2C%20Zimbabwe!5e0!3m2!1sen!2szw!4v1689999999999!5m2!1sen!2szw"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    title="Pravic Poultry Farm Location">
+  </iframe>
+</div>
         </div>
       </div>
-    </div>
-  </section>
-
+    </div>  
   <!-- CTA Banner -->
   <section class="py-5 text-white text-center bg-warning">
     <div class="container">

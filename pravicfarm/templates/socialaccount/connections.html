@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% load socialaccount %}
+{% block title %}Social Account Connections - Pravic Poultry Farm{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 540px;">
+  <h2 class="mb-4 text-success">Connected Social Accounts</h2>
+
+  {% if socialaccounts %}
+    <ul class="list-group mb-4">
+      {% for account in socialaccounts %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ account.provider|title }}
+          <form method="POST" action="{% url 'socialaccount_connections' %}">
+            {% csrf_token %}
+            <input type="hidden" name="account" value="{{ account.id }}">
+            <button class="btn btn-outline-danger btn-sm" type="submit">Disconnect</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No social accounts connected.</p>
+  {% endif %}
+
+  <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger">
+    <i class="bi bi-google"></i> Connect Google Account
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% block title %}Logged Out - Pravic Poultry Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-lg p-4 animate__animated animate__fadeInDown text-center" style="width: 100%; max-width: 420px;">
+    <h3 class="text-success mb-3">You have been logged out</h3>
+    <p class="small text-muted mb-4">Thank you for visiting Pravic Poultry Farm.</p>
+    <a href="{% url 'account_login' %}" class="btn btn-success btn-lg shadow-sm">Login Again</a>
+  </div>
+</div>
+{% endblock %}

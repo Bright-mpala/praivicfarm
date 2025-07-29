@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.mail import EmailMessage, send_mail
+from django.core.mail import EmailMessage, send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.timezone import now, timezone
 from datetime import timedelta
@@ -13,7 +13,7 @@ from django.db import transaction
 from django.utils.html import strip_tags
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Product, BlogPost, ContactMessage, Subscriber, Order, Newsletter, GalleryImage
+from .models import Product, BlogPost, ContactMessage, Subscriber, Order, Newsletter, GalleryImage, Review
 from allauth.account.forms import LoginForm, SignupForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -27,19 +27,17 @@ from django.db import transaction
 from django.http import FileResponse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-
+from django.core.paginator import Paginator
 
 @require_http_methods(["GET"])
 def index(request):
     products = Product.objects.filter(available=True)
     blog_posts = BlogPost.objects.order_by('-published_date')[:3]
-    products = Product.objects.filter(available=True).order_by('-created_at')[:6]  # Latest 6 products
-    gallery = GalleryImage.objects.all  # Latest 8 gallery images
+    products = Product.objects.filter(available=True).order_by('-created_at')[:3]  
+    gallery = GalleryImage.objects.all().order_by('-uploaded_at')[:6]  # Fetch latest 6 images
     return render(request, 'core/index.html', {
         'products': products,
         'blog_posts': blog_posts,
-        'login_form': LoginForm(),
-        'signup_form': SignupForm(),
         'products': products,
         'gallery': gallery,
     })
@@ -51,17 +49,47 @@ def about(request):
 
 # Contact
 @require_http_methods(["GET", "POST"])
-def contact(request):
+def contact_view(request):
     if request.method == 'POST':
-        ContactMessage.objects.create(
-            name=request.POST.get('name'),
-            email=request.POST.get('email'),
-            subject=request.POST.get('subject'),
-            message=request.POST.get('message'),
-            phone=request.POST.get('phone', '')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        if not (name and email and message):
+            messages.error(request, 'Please fill in all fields.')
+            return redirect('home')
+
+        ContactMessage.objects.create(name=name, email=email, message=message)
+
+        admin_html = render_to_string('emails/admin_message.html', {
+            'name': name,
+            'email': email,
+            'message': message,
+        })
+
+        admin_msg = EmailMultiAlternatives(
+            subject=f'New Contact Message from {name}',
+            body='',
+            from_email=f'{name} <{email}>',
+            to=[settings.CONTACT_NOTIFY_EMAIL],
+            reply_to=[email]
         )
-        return HttpResponse("Thank you for your message!")
-    return render(request, 'core/contact.html')
+        admin_msg.attach_alternative(admin_html, 'text/html')
+        admin_msg.send()
+
+        user_html = render_to_string('emails/user_autoresponse.html', {'name': name})
+        user_msg = EmailMultiAlternatives(
+            subject='Thank You for Contacting Pravic',
+            body='',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email]
+        )
+        user_msg.attach_alternative(user_html, 'text/html')
+        user_msg.send()
+
+        messages.success(request, 'Your message was sent successfully!')
+        return redirect('index')
+    return redirect('index')
 
 # Subscribe to Newsletter
 @require_http_methods(["POST"])
@@ -141,7 +169,8 @@ def order_view(request):
 
                 product.stock -= quantity
                 product.save()
-
+               
+                review_exists = Review.objects.filter(order=order).exists()
                 # Send confirmation email
                 subject = 'Order Confirmation - Pravic Poultry Farm'
                 html_message = render_to_string('emails/order_confirmation.html', {'order': order})
@@ -160,7 +189,7 @@ def order_view(request):
                     f"Address: {order.address}\n"
                     f"Payment Method: {order.payment_method}"
                 )
-                send_mail(admin_subject, admin_message, settings.DEFAULT_FROM_EMAIL, ['brightjustinmpala@gmail.com'])
+                send_mail(admin_subject, admin_message, settings.DEFAULT_FROM_EMAIL, ['infopraivicfarm@gmail.com'])
 
                 # WhatsApp link for session if needed
                 whatsapp_number = "263780808201"
@@ -175,6 +204,7 @@ def order_view(request):
                     context = {
                         'products': products,
                         'order': order,
+                        'review_exists': review_exists,
                         'success': True,
                         'ecocash_qr': qr_code_data_uri,
                     }
@@ -191,11 +221,27 @@ def order_view(request):
         'error': error
     })
 
-@require_http_methods(["GET"])
+@login_required
 def order_success(request, order_id):
     whatsapp_url = request.session.get('whatsapp_url')
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, 'core/order_success.html', {'order': order, 'whatsapp_url': whatsapp_url})
+    order = get_object_or_404(Order, id=order_id, customer_email=request.user.email)
+    review_exists = Review.objects.filter(order=order).exists()
+    form = ReviewForm()
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.order = order
+            review.user = request.user
+            review.save()
+            messages.success(request, "Thank you for your review!")
+            return redirect('thank_you')
+    return render(request, 'core/order_success.html', {
+        'order': order,
+        'whatsapp_url': whatsapp_url,
+        'review_exists': review_exists
+    })
+
 
 # Blog listing
 @require_http_methods(["GET"])
@@ -218,8 +264,23 @@ def product_detail(request, product_id):
 # Product listing
 @require_http_methods(["GET"])
 def products(request):
-    products = Product.objects.filter(available=True)
-    return render(request, 'core/products.html', {'products': products})
+    category_filter = request.GET.get('category')
+    product_list = Product.objects.filter(available=True)
+
+    if category_filter:
+        product_list = product_list.filter(category=category_filter)
+
+    paginator = Paginator(product_list, 6)  # Show 6 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    categories = Product.CATEGORY_CHOICES
+
+    return render(request, 'core/products.html', {
+        'page_obj': page_obj,
+        'categories': categories,
+        'selected_category': category_filter,
+    })
 
 # Send newsletter
 @staff_member_required
@@ -297,8 +358,41 @@ send_order_update({'orders': 'Order list updated'})
 def gallery(request):
     images = GalleryImage.objects.all().order_by('-uploaded_at')
     return render(request, 'core/gallery.html', {'images': images})
-
+#order recipt
 def order_receipt_pdf(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     pdf_buffer = generate_order_pdf(order)
     return FileResponse(pdf_buffer, as_attachment=True, filename=f'order_{order.order_reference}.pdf')
+
+#Reviews
+from .forms import ReviewForm
+
+@login_required
+def review_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.customer_email != request.user.email:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Unauthorized'}, status=403)
+        return redirect('home')
+
+    try:
+        review = Review.objects.get(order=order, user=request.user)
+    except Review.DoesNotExist:
+        review = None
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            review_obj = form.save(commit=False)
+            review_obj.order = order
+            review_obj.user = request.user
+            review_obj.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+
+    return render(request, 'core/review.html', {'form': form, 'order': order})
+
+def thank_you_view(request):
+    return render(request, 'core/thank_you.html')

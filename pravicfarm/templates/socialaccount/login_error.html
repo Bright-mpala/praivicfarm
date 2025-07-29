@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}Social Login Error - Pravic Poultry Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-lg p-4 animate__animated animate__fadeInDown text-center" style="width: 100%; max-width: 420px;">
+    <h3 class="text-danger mb-3">Social Login Error</h3>
+    <p class="small text-muted mb-4">
+      An error occurred while trying to log in with the social account. Please try again.
+    </p>
+    <a href="{% url 'account_login' %}" class="btn btn-danger btn-lg shadow-sm">Back to Login</a>
+  </div>
+</div>
+{% endblock %}

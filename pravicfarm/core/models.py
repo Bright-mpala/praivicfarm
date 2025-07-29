@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta
 import uuid
+from django.contrib.auth.models import User
+from ckeditor.fields import RichTextField
 
 class Product(models.Model):
     CATEGORY_CHOICES = [
@@ -29,7 +31,7 @@ class Product(models.Model):
 class BlogPost(models.Model):
     title = models.CharField(max_length=250)
     slug = models.SlugField(unique=True)
-    content = models.TextField()
+    content =  RichTextField()
     featured_image = models.ImageField(upload_to='blog/', null=True, blank=True)
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.CharField(max_length=100, default='Pravic Poultry')
@@ -133,3 +135,11 @@ class GalleryImage(models.Model):
 
     def __str__(self):
         return self.title    
+    
+class Review(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    

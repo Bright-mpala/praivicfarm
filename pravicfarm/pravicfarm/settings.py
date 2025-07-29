@@ -24,10 +24,10 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'ckeditor',
     'core',
-    'channels',  # For real-time features
+    'channels',  # For WebSocket support
 ]
-
 SITE_ID = 1  
 
 ASGI_APPLICATION = 'pravicfarm.asgi.application'
@@ -52,22 +52,24 @@ MIDDLEWARE = [
 # URLS
 ROOT_URLCONF = 'pravicfarm.urls'
 
-# TEMPLATES
+    # settings.py
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',  
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.request',
+
+                ],
+            },
         },
-    },
-]
+    ]
 
 # WSGI
 WSGI_APPLICATION = 'pravicfarm.wsgi.application'
@@ -88,12 +90,14 @@ AUTHENTICATION_BACKENDS = (
 
 # LOGIN / LOGOUT REDIRECT
 LOGIN_REDIRECT_URL = '/'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'account_login'  # Use allauth's login URL
+LOGOUT_URL = 'account_logout'  # Use allauth's logout URL
 
 # AUTH USER SETTINGS
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_SIGNUP_REDIRECT_URL = '/'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
@@ -105,10 +109,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'brightjustinmpala@gmail.com'
-EMAIL_HOST_PASSWORD = 'msiwfzubwrgzhjyw'  # Use your generated Gmail app password here
+EMAIL_HOST_USER = 'infopraivicfarm@gmail.com'
+EMAIL_HOST_PASSWORD = 'taxwhticeijcbdsx'  # Use your generated Gmail app password here
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
+CONTACT_NOTIFY_EMAIL = 'infopraivicfarm@gmail.com' # Email to notify on contact form submissions
 # STATIC / MEDIA
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -136,7 +140,23 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
-
+#Django ckeditor settings
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+        'extraPlugins': ','.join([
+            'codesnippet',
+        ]),
+        'codeSnippet_theme': 'monokai_sublime',
+        'removePlugins': 'elementspath',
+        'allowedContent': True,
+        'autoParagraph': False,
+        'forcePasteAsPlainText': True,
+        
+    },
+}
 # JAZZMIN ADMIN SETTINGS (optional)
 JAZZMIN_SETTINGS = {
     "site_title": "Pravic Poultry Admin",
@@ -155,6 +175,7 @@ JAZZMIN_SETTINGS = {
         "core.Subscriber": "fas fa-envelope-open-text",
         "core.Order": "fas fa-shopping-cart",
         "core.GalleryImage": "fas fa-image",
+        "core.Review": "fas fa-star",
         "core": "fas fa-home",
         "sites": "fas fa-globe",
         "flatpages": "fas fa-file-alt",
@@ -191,3 +212,4 @@ JAZZMIN_SETTINGS = {
     },
 }
 
+CKEDITOR_UPLOAD_PATH = "uploads/"

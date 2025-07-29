@@ -1,10 +1,21 @@
 from django.contrib import admin
-from .models import BlogPost, ContactMessage, Subscriber, Product, Order, OrderItem, GalleryImage
+from .models import BlogPost, ContactMessage, Subscriber, Product, Order, OrderItem, GalleryImage, Review
 import csv
 from django.http import HttpResponse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('order', 'user', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at')
+    search_fields = ('order__order_reference', 'user__username', 'comment')
+    readonly_fields = ('created_at',)
+
+    # Optional: Add inline editing of comments and ratings
+    fields = ('order', 'user', 'rating', 'comment', 'created_at')
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):   
     list_display = ('name', 'category', 'price', 'available', 'created_at')

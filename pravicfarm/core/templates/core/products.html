@@ -1,0 +1,93 @@
+{% extends "core/base.html" %}
+{% block title %}Pravic Poultry Farm{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h2 class="mb-4">Available Products</h2>
+
+    <!-- Filter by Category -->
+    <div class="mb-4">
+        <form method="get" class="d-flex flex-wrap gap-2">
+            <select name="category" class="form-select w-auto" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for code, name in categories %}
+                    <option value="{{ code }}" {% if code == selected_category %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    {% if page_obj %}
+        {% for product in page_obj %}
+            <div class="card mb-4 shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/default-product.jpg' %}" class="img-fluid rounded-start" alt="No image">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted"><strong>Category:</strong> {{ product.get_category_display }}</p>
+                            <p class="card-text">{{ product.description|truncatewords:30 }}</p>
+                            <p class="card-text">
+                                <strong>Price:</strong>
+                                {% if product.price %}
+                                    ${{ product.price }} {% if product.negotiable %}(Negotiable){% endif %}
+                                {% else %}
+                                    Contact for price
+                                {% endif %}
+                            </p>
+                            <p class="card-text"><small class="text-muted">Stock: {{ product.stock }}</small></p>
+                            <p class="card-text"><small class="text-muted">Added on {{ product.created_at|date:"M d, Y" }}</small></p>
+                            <a href="{% url 'order' %}" class="btn btn-primary mt-2">
+                            Order Now
+                                </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+    {% else %}
+        <p>No products available at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

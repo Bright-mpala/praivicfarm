@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}Signups Closed - Pravic Poultry Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-lg p-4 animate__animated animate__fadeInDown text-center" style="width: 100%; max-width: 420px;">
+    <h3 class="text-warning mb-3">Signups are currently closed</h3>
+    <p class="small text-muted mb-4">
+      We are not accepting new registrations at this time. Please check back later.
+    </p>
+    <a href="{% url 'account_login' %}" class="btn btn-outline-warning btn-lg shadow-sm">Back to Login</a>
+  </div>
+</div>
+{% endblock %}
